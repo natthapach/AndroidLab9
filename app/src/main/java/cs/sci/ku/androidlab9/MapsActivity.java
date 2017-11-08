@@ -56,7 +56,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         mMap.addMarker(new MarkerOptions().position(new LatLng(13.844632, 100.571841)).title("Faculty of Science"));
-        
+
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(final LatLng latLng) {
@@ -69,11 +69,42 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         TextView titleTextView = addDialog.findViewById(R.id.et_title);
                                         String title = titleTextView.getText().toString();
-                                        mMap.addMarker(new MarkerOptions().position(latLng).title(title));
+                                        MarkerOptions markerOptions = new MarkerOptions().position(latLng).title(title);
+                                        mMap.addMarker(markerOptions);
+
                                     }
                                 })
                                 .create()
                                 .show();
+            }
+        });
+
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(final Marker marker) {
+                Log.d("onClickInfo", marker.getTitle());
+                final View editDialog = getLayoutInflater().inflate(R.layout.dialog_add_marker, null);
+                final TextView titleTextView = editDialog.findViewById(R.id.et_title);
+                titleTextView.setText(marker.getTitle());
+                new AlertDialog.Builder(MapsActivity.this)
+                        .setView(editDialog)
+                        .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                marker.remove();
+                            }
+                        })
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                                String title = titleTextView.getText().toString();
+                                marker.setTitle(title);
+                                marker.showInfoWindow();
+                            }
+                        })
+                        .create()
+                        .show();
             }
         });
     }
